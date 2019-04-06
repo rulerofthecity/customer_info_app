@@ -9,6 +9,7 @@ app=Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='postgresql://postgres:admin123@localhost/customer_info'
 db=SQLAlchemy(app)
 
+#model class
 class Data(db.Model):
     __tablename__ = "customer_detail"
     id = db.Column(db.Integer, primary_key=True)
