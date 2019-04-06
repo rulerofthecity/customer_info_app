@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Customer Info</title>
+    <link rel="stylesheet" href="../static/main.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="title">
+          <h1>Waah Tandoor</h1>
+      </div>
+
+      <div class="body">
+        <form class="customer_form" action="{{url_for('search')}}" method="post">
+          <input type="text" name="name" value="" title="Full name" placeholder="Full name" required>
+          <br>
+          <input type="tel" name="mobile1" value="" title="Mobile 1" placeholder="Mobile 1" required>
+          <br>
+          <input type="tel" name="mobile2" value="" title="Mobile 2" placeholder="Mobile 2">
+          <br>
+          <input type="tel" name="mobile3" value="" title="Mobile 3" placeholder="Mobile 3">
+          <br>
+          <textarea name="address" rows="8" cols="20" title="Address"></textarea>
+          <br>
+          <button type="submit" name="submit">Add</button>
+          <button type="reset" name="reset">Reset</button>
+
+        </form>
+
+        <a href="{{url_for('search')}}">Search</a>
+
+      </div>
+
+      <div class="footer">
+
+      </div>
+
+    </div>
+  </body>
+</html>
