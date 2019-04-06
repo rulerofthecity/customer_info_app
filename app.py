@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_, desc
 import json
 
+#This is the main class that handles server side requests
+
 app=Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='postgresql://postgres:admin123@localhost/customer_info'
 db=SQLAlchemy(app)
