@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="../static/css/main.css"/>
     <script type="text/javascript" src="../static/js/vendor/jquery-3.3.1.min.js"></script>
     <script type="text/javascript" src="../static/js/script.js"></script>
+    {{ JSGlue.include() }}
   </head>
   <body>
     <div class="container">
@@ -19,7 +20,10 @@
           <button type="button">Search</button>
         </form>
 
-        <!-- <table id="customer_details_table">
+        </div>
+
+        <div class="result" id="result"></div>
+        <table id="body_tbl">
           <thead>
             <tr>
               <th>Name</th>
@@ -27,30 +31,8 @@
               <th>mobile 2</th>
               <th>mobile 3</th>
               <th>Address</th>
-            </tr>
-          </thead>
-          <tbody id="customer_details_tbody">
-            {% for item in details %}
-            <tr>
-              <td>{{ item.name }}</td>
-              <td>{{ item.mobile1 }}</td>
-              <td>{{ item.mobile2 }}</td>
-              <td>{{ item.mobile3 }}</td>
-              <td>{{ item.address }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table> -->
-
-
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>mobile 1</th>
-              <th>mobile 2</th>
-              <th>mobile 3</th>
-              <th>Address</th>
+              <th>Edit</th>
+              <th>Delete</th>
              </tr>
          </thead>
          <tbody id="tbody">
@@ -64,8 +46,9 @@
       <div class="footer">
 
       </div>
-    </div>
 
+
+    </div>
 
   </body>
 </html>

@@ -1,13 +1,16 @@
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import or_, desc
+from sqlalchemy import or_, desc, and_
+from flask_jsglue import JSGlue
 import json
-
+from config import Config
 #This is the main class that handles server side requests
 
 app=Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='postgresql://postgres:admin123@localhost/customer_info'
 db=SQLAlchemy(app)
+jsglue=JSGlue(app)
+app.config.from_object(Config)
 
 #model class
 class Data(db.Model):
@@ -18,6 +21,7 @@ class Data(db.Model):
     mobile2 = db.Column(db.String(20))
     mobile3 = db.Column(db.String(20))
     address = db.Column(db.String(500))
+    active_status = db.Column(db.String(1))
 
     def __init__(self, name, mobile1, mobile2, mobile3, address):
         self.name = name
@@ -25,6 +29,7 @@ class Data(db.Model):
         self.mobile2 = mobile2
         self.mobile3 = mobile3
         self.address = address
+        self.active_status = "Y"
 
     @property
     def serialize(self):
@@ -32,12 +37,23 @@ class Data(db.Model):
         'mobile1' : self.mobile1,
         'mobile2' : self.mobile2,
         'mobile3' : self.mobile3,
-        'address' : self.address}
+        'address' : self.address,
+        'id' : self.id}
 
-@app.route("/index")
-@app.route("/")
+@app.route("/index", methods=['post','get'])
+@app.route("/", methods=['post','get'])
 def index():
-    return render_template("index.html")
+    form_data = {'data': None}
+    if request.method == 'GET' and (request.args.get("action") != None and request.args.get("action") == 'edit'):
+        cust_id = request.args.get("id")
+        cust_info = db.session.query(Data).filter(Data.id == cust_id).first()
+        print(cust_info.name)
+        form_data = {'data': cust_info}
+        # resp = app.make_response(render_template('index.html',data = cust_info.name))
+        return render_template('index.html', data = form_data)
+        # return resp;
+
+    return render_template("index.html", data = form_data)
 
 @app.route("/search", methods=['post','get'])
 def search():
@@ -47,54 +63,57 @@ def search():
         mobile2 = request.form['mobile2']
         mobile3 = request.form['mobile3']
         address = request.form['address']
-
-        print(name, mobile1, mobile2, mobile1, address)
         # # TODO: Add logic to stop user from entering duplicate mobile number in either of the fields (mobile1,mobile2 or mobile3)
         # if db.session.query(Data).filter(or_(Data.mobile1 == mobile1, Data.mobile2 == mobile1, Data.mobile3 = mobile1))
-
-        data = Data(name, mobile1, mobile2, mobile3, address)
-        db.session.add(data)
+        id_to_upate = request.form['id']
+        if id_to_upate != '':
+            print('Update')
+            data = Data.query.filter_by(id = id_to_upate).first()
+            data.name = name
+            data.mobile1 = mobile1
+            data.mobile2 = mobile2
+            data.mobile3 = mobile3
+            data.address = address
+        else:
+            data = Data(name, mobile1, mobile2, mobile3, address)
+            db.session.add(data)
         db.session.commit()
-
-    # list = fetch_all_details()
     return render_template('search.html')
 
 def fetch_all_details():
-    #just return 10 rows
-    list = db.session.query(Data).order_by(desc(Data.id)).limit(10)
-    print(list)
+    list = db.session.query(Data).filter(Data.active_status == "Y").order_by(desc(Data.id)).limit(20)
     return list
+
+@app.route("/delete_cust", methods=['post'])
+def delete_cust():
+    print("Hello")
+    id_to_delete = request.form['id_to_delete']
+    print(id_to_delete)
+    if id_to_delete != None:
+        data = Data.query.filter_by(id = id_to_delete).first()
+        data.active_status = "N"
+        db.session.commit()
+        return app.response_class(json.dumps(True), content_type='application/json')
+    # return render_template('search.html')
+    # return jsonify({'result' : True})
+    return app.response_class(json.dumps(False), content_type='application/json')
 
 @app.route("/filter", methods=['get'])
 def filter():
     print(request)
     if request.method=='GET':
         filter_criteria = request.args.get("query")
-        print(filter_criteria)
-
         if filter_criteria != "":
             like_filter_criteria = "%" + filter_criteria + "%"
             search_results = db.session.query(Data).filter(or_(Data.mobile1.like(like_filter_criteria),
             Data.mobile2.like(like_filter_criteria),
-            Data.mobile3.like(like_filter_criteria))).order_by(Data.name)
-            print(search_results)
+            Data.mobile3.like(like_filter_criteria))).filter(and_(Data.active_status == "Y")).order_by(Data.name)
         else:
             search_results = fetch_all_details()
 
         if search_results != None:
                 # return json.dumps({'status':'OK','result':jsonify(search_results)})
             return jsonify({'json_list' : [i.serialize for i in search_results.all()]})
-
-
-# def fetch_details(self, name, mobile_num):
-#     if name == None and mobile_num == None:
-#         list = db.session.query(Data)
-#         print(type(list))
-#         print(list)
-#
-#
-# def fetch_all_details(query):
-#     print()
 
 if __name__ == '__main__':
     app.debug=True

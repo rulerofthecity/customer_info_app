@@ -13,17 +13,22 @@
 
       <div class="body">
         <form class="customer_form" action="{{url_for('search')}}" method="post">
-          <input type="text" name="name" value="" title="Full name" placeholder="Full name" required>
+          <input type="text" name="name" value="{{ data['data'].name }}" title="Full name" placeholder="Full name" required>
           <br>
-          <input type="tel" name="mobile1" value="" title="Mobile 1" placeholder="Mobile 1" required>
+          <input type="tel" name="mobile1" value="{{ data['data'].mobile1 }}" title="Mobile 1" placeholder="Mobile 1" required>
           <br>
-          <input type="tel" name="mobile2" value="" title="Mobile 2" placeholder="Mobile 2">
+          <input type="tel" name="mobile2" value="{{ data['data'].mobile2 }}" title="Mobile 2" placeholder="Mobile 2">
           <br>
-          <input type="tel" name="mobile3" value="" title="Mobile 3" placeholder="Mobile 3">
+          <input type="tel" name="mobile3" value="{{ data['data'].mobile3 }}" title="Mobile 3" placeholder="Mobile 3">
           <br>
-          <textarea name="address" rows="8" cols="20" title="Address"></textarea>
+          <textarea name="address" rows="8" cols="20" title="Address">{{ data['data'].address }}</textarea>
           <br>
-          <button type="submit" name="submit">Add</button>
+          <input type="hidden" name="id" value="{{ data['data'].id }}">
+          {% if data['data'] == None %}
+            <button type="submit" name="submit">Add</button>
+          {% else %}
+            <button type="submit" name="submit">Update</button>
+          {% endif %}
           <button type="reset" name="reset">Reset</button>
 
         </form>
