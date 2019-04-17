@@ -19,28 +19,31 @@
           <input type="text" name="query" value="" placeholder="Search">
           <button type="button">Search</button>
         </form>
-
-        </div>
-
-        <div class="result" id="result"></div>
-        <table id="body_tbl">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>mobile 1</th>
-              <th>mobile 2</th>
-              <th>mobile 3</th>
-              <th>Address</th>
-              <th>Edit</th>
-              <th>Delete</th>
-             </tr>
-         </thead>
-         <tbody id="tbody">
-         </tbody>
-        </table>
-
         <a href="{{url_for('index')}}">Add New Customer</a>
+        <div class="message" id="message"></div>
+      </div>
 
+      <div class="datalist" id="datalist">
+
+
+          <table id="body_tbl">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>mobile 1</th>
+                <th>mobile 2</th>
+                <th>mobile 3</th>
+                <th>Address</th>
+                <th>Edit</th>
+                <th>Delete</th>
+               </tr>
+           </thead>
+           <tbody id="tbody">
+           </tbody>
+          </table>
+
+          <div id="paginationBox">
+          </div>
       </div>
 
       <div class="footer">

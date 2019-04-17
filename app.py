@@ -47,11 +47,8 @@ def index():
     if request.method == 'GET' and (request.args.get("action") != None and request.args.get("action") == 'edit'):
         cust_id = request.args.get("id")
         cust_info = db.session.query(Data).filter(Data.id == cust_id).first()
-        print(cust_info.name)
         form_data = {'data': cust_info}
-        # resp = app.make_response(render_template('index.html',data = cust_info.name))
         return render_template('index.html', data = form_data)
-        # return resp;
 
     return render_template("index.html", data = form_data)
 
@@ -67,7 +64,6 @@ def search():
         # if db.session.query(Data).filter(or_(Data.mobile1 == mobile1, Data.mobile2 == mobile1, Data.mobile3 = mobile1))
         id_to_upate = request.form['id']
         if id_to_upate != '':
-            print('Update')
             data = Data.query.filter_by(id = id_to_upate).first()
             data.name = name
             data.mobile1 = mobile1
@@ -81,28 +77,25 @@ def search():
     return render_template('search.html')
 
 def fetch_all_details():
-    list = db.session.query(Data).filter(Data.active_status == "Y").order_by(desc(Data.id)).limit(20)
+    list = db.session.query(Data).filter(Data.active_status == "Y").order_by(Data.name)
     return list
 
 @app.route("/delete_cust", methods=['post'])
 def delete_cust():
-    print("Hello")
     id_to_delete = request.form['id_to_delete']
-    print(id_to_delete)
     if id_to_delete != None:
         data = Data.query.filter_by(id = id_to_delete).first()
         data.active_status = "N"
         db.session.commit()
         return app.response_class(json.dumps(True), content_type='application/json')
-    # return render_template('search.html')
-    # return jsonify({'result' : True})
     return app.response_class(json.dumps(False), content_type='application/json')
 
-@app.route("/filter", methods=['get'])
-def filter():
-    print(request)
+@app.route('/filter', defaults={'page_num':1}, methods=['get'])
+@app.route('/filter/<int:page_num>', methods=['get'])
+def filter(page_num):
     if request.method=='GET':
         filter_criteria = request.args.get("query")
+
         if filter_criteria != "":
             like_filter_criteria = "%" + filter_criteria + "%"
             search_results = db.session.query(Data).filter(or_(Data.mobile1.like(like_filter_criteria),
@@ -112,8 +105,12 @@ def filter():
             search_results = fetch_all_details()
 
         if search_results != None:
-                # return json.dumps({'status':'OK','result':jsonify(search_results)})
-            return jsonify({'json_list' : [i.serialize for i in search_results.all()]})
+            paginationObj = search_results.paginate(per_page=3,page=page_num,error_out=True)
+            num_list = []
+            for i in paginationObj.iter_pages(left_edge = 3, right_edge = 3, left_current = 3, right_current = 3):
+                num_list.append(i)
+            return jsonify({'json_list' : [i.serialize for i in paginationObj.items],
+            'pages_lst' : num_list})
 
 if __name__ == '__main__':
     app.debug=True
